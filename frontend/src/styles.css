@@ -1,0 +1,220 @@
+:root {
+  color-scheme: light;
+  --bg: #f4efe6;
+  --bg-accent: #e2f0ea;
+  --panel: rgba(255, 255, 255, 0.84);
+  --ink: #14213d;
+  --muted: #4f5d75;
+  --candidate: #0b6e4f;
+  --employer: #9a3412;
+  --line: rgba(20, 33, 61, 0.12);
+  --danger: #b42318;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(11, 110, 79, 0.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(154, 52, 18, 0.14), transparent 26%),
+    linear-gradient(135deg, var(--bg), var(--bg-accent));
+  color: var(--ink);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--candidate);
+  font-size: 0.8rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 0.95;
+}
+
+.lede,
+.security-panel,
+.form-card,
+.status-panel {
+  backdrop-filter: blur(16px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 24px 80px rgba(20, 33, 61, 0.08);
+}
+
+.lede {
+  margin-top: 16px;
+  padding: 20px;
+  max-width: 700px;
+  color: var(--muted);
+}
+
+.security-panel {
+  padding: 20px;
+}
+
+.security-panel p {
+  margin-top: 0;
+  font-weight: 700;
+}
+
+.security-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.split-view,
+.plane-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.split-view {
+  margin-bottom: 28px;
+}
+
+.role-card {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 28px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.role-card:hover,
+.role-card.active {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(20, 33, 61, 0.08);
+}
+
+.role-card:first-child.active {
+  border-color: rgba(11, 110, 79, 0.45);
+}
+
+.role-card:last-child.active {
+  border-color: rgba(154, 52, 18, 0.45);
+}
+
+.role-card span {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.role-card p,
+.card-header p,
+.status-message,
+.token-box {
+  color: var(--muted);
+}
+
+.form-card {
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.card-header h2 {
+  margin: 0 0 8px;
+}
+
+.card-header p {
+  margin: 0;
+}
+
+.form-card label {
+  display: grid;
+  gap: 8px;
+}
+
+.form-card input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.form-card button {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 18px;
+  color: white;
+  background: linear-gradient(135deg, var(--ink), #284b63);
+  cursor: pointer;
+}
+
+.form-card button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.error-banner {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: var(--danger);
+  background: rgba(180, 35, 24, 0.08);
+}
+
+.status-panel {
+  margin-top: 28px;
+  padding: 24px;
+}
+
+.status-message {
+  margin-top: 0;
+}
+
+.token-box {
+  overflow-wrap: anywhere;
+}
+
+.token {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 840px) {
+  .hero,
+  .split-view,
+  .plane-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    padding: 20px 16px 48px;
+  }
+}
