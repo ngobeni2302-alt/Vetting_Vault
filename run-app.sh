@@ -8,8 +8,9 @@ FRONTEND_DIR="$ROOT_DIR/frontend"
 LOG_DIR="$ROOT_DIR/.run-logs"
 PID_FILE="$ROOT_DIR/.vettingvault-pids"
 APP_URL="http://localhost:5173"
+MAVEN_REPO="$ROOT_DIR/.m2/repository"
 
-mkdir -p "$LOG_DIR"
+mkdir -p "$LOG_DIR" "$MAVEN_REPO"
 
 require_command() {
   local cmd="$1"
@@ -60,10 +61,7 @@ start_backend() {
   fi
 
   echo "Starting backend..."
-  (
-    cd "$BACKEND_DIR"
-    mvn spring-boot:run
-  ) >"$LOG_DIR/backend.log" 2>&1 &
+  setsid bash -c "cd '$BACKEND_DIR' && exec mvn -Dmaven.repo.local='$MAVEN_REPO' spring-boot:run" >"$LOG_DIR/backend.log" 2>&1 </dev/null &
   BACKEND_PID=$!
 }
 
@@ -76,16 +74,13 @@ start_frontend() {
   echo "Installing frontend dependencies if needed..."
   (
     cd "$FRONTEND_DIR"
-    if [ ! -d node_modules ]; then
+    if [ ! -x node_modules/.bin/vite ]; then
       npm install
     fi
   ) >"$LOG_DIR/frontend-install.log" 2>&1
 
   echo "Starting frontend..."
-  (
-    cd "$FRONTEND_DIR"
-    npm run dev -- --host 127.0.0.1
-  ) >"$LOG_DIR/frontend.log" 2>&1 &
+  setsid bash -c "cd '$FRONTEND_DIR' && exec npm run dev -- --host 127.0.0.1" >"$LOG_DIR/frontend.log" 2>&1 </dev/null &
   FRONTEND_PID=$!
 }
 

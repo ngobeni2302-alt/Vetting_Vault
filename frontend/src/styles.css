@@ -27,7 +27,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -62,11 +64,12 @@ input {
 .lede,
 .security-panel,
 .form-card,
-.status-panel {
+.status-panel,
+.workspace {
   backdrop-filter: blur(16px);
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 8px;
   box-shadow: 0 24px 80px rgba(20, 33, 61, 0.08);
 }
 
@@ -195,6 +198,286 @@ input {
   padding: 24px;
 }
 
+.workspace {
+  margin-top: 28px;
+  padding: 24px;
+}
+
+.candidate-workspace {
+  border-color: rgba(11, 110, 79, 0.28);
+}
+
+.employer-workspace {
+  border-color: rgba(154, 52, 18, 0.28);
+}
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.candidate-search {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.job-search-label {
+  display: grid;
+  gap: 8px;
+}
+
+.job-search-label span,
+.application-form label span,
+.form-card label span {
+  font-weight: 700;
+}
+
+.job-search-label input {
+  width: 100%;
+  border: 1px solid rgba(11, 110, 79, 0.24);
+  border-radius: 8px;
+  padding: 15px 18px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.job-results {
+  display: grid;
+  gap: 10px;
+}
+
+.job-result {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.job-result h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.job-result p,
+.job-result span,
+.job-meta,
+.empty-results {
+  color: var(--muted);
+}
+
+.job-result p {
+  margin: 0 0 4px;
+}
+
+.job-meta {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.workspace-header h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.workspace-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.workspace-header button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: white;
+  background: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.application-form {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.application-form-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.application-form-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.application-form-header button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: white;
+  background: var(--candidate);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.application-form fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.application-form legend {
+  padding: 0 8px;
+  font-weight: 700;
+}
+
+.application-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.application-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.application-form input,
+.application-form select,
+.application-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+}
+
+.application-form textarea {
+  resize: vertical;
+}
+
+.document-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.document-upload {
+  min-height: 118px;
+  border: 1px dashed rgba(11, 110, 79, 0.32);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.document-upload input {
+  border: none;
+  padding: 0;
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+.submitted-documents {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.submitted-documents h4 {
+  margin: 0 0 10px;
+}
+
+.submitted-documents ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.submitted-documents li {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.submitted-documents p,
+.submitted-documents small {
+  color: var(--muted);
+}
+
+.submitted-documents p {
+  margin: 0;
+}
+
+.full-span {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.save-message {
+  margin: 0;
+  color: var(--candidate);
+  font-weight: 700;
+}
+
+.subject-line {
+  font-weight: 700;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.action-panel {
+  min-height: 190px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.action-panel h3 {
+  margin: 0 0 12px;
+}
+
+.action-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.action-panel li + li {
+  margin-top: 10px;
+}
+
 .status-message {
   margin-top: 0;
 }
@@ -210,7 +493,27 @@ input {
 @media (max-width: 840px) {
   .hero,
   .split-view,
-  .plane-grid {
+  .plane-grid,
+  .workspace-grid,
+  .application-fields,
+  .document-upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-header {
+    display: grid;
+  }
+
+  .job-result,
+  .application-form-header {
+    display: grid;
+  }
+
+  .job-meta {
+    justify-items: start;
+  }
+
+  .submitted-documents li {
     grid-template-columns: 1fr;
   }
 

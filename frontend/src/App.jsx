@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api';
 
 const initialCandidateRegister = {
@@ -26,10 +26,103 @@ const initialEmployerLogin = {
   password: ''
 };
 
+const candidateJobs = [
+  {
+    id: 'fraud-analyst',
+    title: 'Junior Fraud Analyst',
+    company: 'Nedbank Group',
+    location: 'Johannesburg, Gauteng',
+    type: 'Full-time',
+    posted: '2 days ago'
+  },
+  {
+    id: 'compliance-associate',
+    title: 'Compliance Screening Associate',
+    company: 'Discovery Limited',
+    location: 'Sandton, Gauteng',
+    type: 'Hybrid',
+    posted: '1 week ago'
+  },
+  {
+    id: 'hr-coordinator',
+    title: 'HR Vetting Coordinator',
+    company: 'Shoprite Group',
+    location: 'Cape Town, Western Cape',
+    type: 'Full-time',
+    posted: '3 days ago'
+  },
+  {
+    id: 'background-check-specialist',
+    title: 'Background Check Specialist',
+    company: 'Standard Bank',
+    location: 'Remote, South Africa',
+    type: 'Remote',
+    posted: 'Today'
+  }
+];
+
+const qualificationOptions = [
+  'High School / Matric / Grade 12',
+  'Certificate',
+  'Diploma',
+  'Advanced Diploma',
+  'Associate Degree',
+  "Bachelor's Degree",
+  'Honours Degree',
+  'Postgraduate Certificate',
+  'Postgraduate Diploma',
+  "Master's Degree",
+  'Doctorate / PhD'
+];
+
+const provinceOptions = [
+  'Eastern Cape',
+  'Free State',
+  'Gauteng',
+  'KwaZulu-Natal',
+  'Limpopo',
+  'Mpumalanga',
+  'Northern Cape',
+  'North West',
+  'Western Cape'
+];
+
 function App() {
   const [role, setRole] = useState(null);
   const [message, setMessage] = useState('');
-  const [tokenInfo, setTokenInfo] = useState(null);
+  const [session, setSession] = useState(null);
+  const [planeProfile, setPlaneProfile] = useState(null);
+  const [planeError, setPlaneError] = useState('');
+
+  useEffect(() => {
+    if (!session?.token) {
+      setPlaneProfile(null);
+      return;
+    }
+
+    let isCurrent = true;
+    const loadProfile = session.role === 'CANDIDATE'
+      ? api.getCandidateProfile
+      : api.getEmployerProfile;
+
+    setPlaneError('');
+    loadProfile(session.token)
+      .then((profile) => {
+        if (isCurrent) {
+          setPlaneProfile(profile);
+        }
+      })
+      .catch((err) => {
+        if (isCurrent) {
+          setPlaneError(err.message);
+          setPlaneProfile(null);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [session]);
 
   return (
     <div className="app-shell">
@@ -60,7 +153,7 @@ function App() {
           onClick={() => {
             setRole('candidate');
             setMessage('');
-            setTokenInfo(null);
+            setSession(null);
           }}
         />
         <RoleCard
@@ -70,37 +163,55 @@ function App() {
           onClick={() => {
             setRole('employer');
             setMessage('');
-            setTokenInfo(null);
+            setSession(null);
           }}
         />
       </section>
 
-      {role === 'candidate' && (
-        <CandidatePlane
-          onResult={(nextMessage, nextToken) => {
-            setMessage(nextMessage);
-            setTokenInfo(nextToken || null);
+      {!session && role === 'candidate' && (
+        <CandidatePlane onAuthenticated={(nextSession) => {
+          setMessage(nextSession.message);
+          setSession(nextSession);
+        }} />
+      )}
+
+      {!session && role === 'employer' && (
+        <EmployerPlane onAuthenticated={(nextSession) => {
+          setMessage(nextSession.message);
+          setSession(nextSession);
+        }} />
+      )}
+
+      {session?.role === 'CANDIDATE' && (
+        <CandidateWorkspace
+          profile={planeProfile}
+          error={planeError}
+          onLogout={() => {
+            setSession(null);
+            setMessage('Candidate session ended.');
           }}
         />
       )}
 
-      {role === 'employer' && (
-        <EmployerPlane
-          onResult={(nextMessage, nextToken) => {
-            setMessage(nextMessage);
-            setTokenInfo(nextToken || null);
+      {session?.role === 'EMPLOYER' && (
+        <EmployerWorkspace
+          profile={planeProfile}
+          error={planeError}
+          onLogout={() => {
+            setSession(null);
+            setMessage('Employer session ended.');
           }}
         />
       )}
 
-      {(message || tokenInfo) && (
+      {(message || session) && (
         <section className="status-panel">
           {message && <p className="status-message">{message}</p>}
-          {tokenInfo && (
+          {session && (
             <div className="token-box">
-              <p><strong>Role:</strong> {tokenInfo.role}</p>
-              <p><strong>Expires:</strong> {tokenInfo.expiresAt}</p>
-              <p className="token"><strong>JWT:</strong> {tokenInfo.token}</p>
+              <p><strong>Role:</strong> {session.role}</p>
+              <p><strong>Expires:</strong> {session.expiresAt}</p>
+              <p className="token"><strong>JWT:</strong> {session.token}</p>
             </div>
           )}
         </section>
@@ -118,7 +229,7 @@ function RoleCard({ title, description, active, onClick }) {
   );
 }
 
-function CandidatePlane({ onResult }) {
+function CandidatePlane({ onAuthenticated }) {
   return (
     <section className="plane-grid">
       <FormCard
@@ -134,8 +245,8 @@ function CandidatePlane({ onResult }) {
         ]}
         buttonLabel="Register Candidate"
         action={async (payload) => {
-          await api.registerCandidate(payload);
-          onResult('Candidate registered successfully.', null);
+          const response = await api.registerCandidate(payload);
+          onAuthenticated(response);
         }}
       />
       <FormCard
@@ -149,14 +260,14 @@ function CandidatePlane({ onResult }) {
         buttonLabel="Login Candidate"
         action={async (payload) => {
           const response = await api.loginCandidate(payload);
-          onResult('Candidate login succeeded.', response);
+          onAuthenticated(response);
         }}
       />
     </section>
   );
 }
 
-function EmployerPlane({ onResult }) {
+function EmployerPlane({ onAuthenticated }) {
   return (
     <section className="plane-grid">
       <FormCard
@@ -171,8 +282,8 @@ function EmployerPlane({ onResult }) {
         ]}
         buttonLabel="Register Employer"
         action={async (payload) => {
-          await api.registerEmployer(payload);
-          onResult('Employer registered successfully.', null);
+          const response = await api.registerEmployer(payload);
+          onAuthenticated(response);
         }}
       />
       <FormCard
@@ -186,10 +297,328 @@ function EmployerPlane({ onResult }) {
         buttonLabel="Login Employer"
         action={async (payload) => {
           const response = await api.loginEmployer(payload);
-          onResult('Employer login succeeded.', response);
+          onAuthenticated(response);
         }}
       />
     </section>
+  );
+}
+
+function CandidateWorkspace({ profile, error, onLogout }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const candidateName = [profile?.name, profile?.surname].filter(Boolean).join(' ');
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const visibleJobs = candidateJobs.filter((job) => {
+    const searchable = `${job.title} ${job.company} ${job.location} ${job.type}`.toLowerCase();
+    return searchable.includes(normalizedSearch);
+  });
+
+  return (
+    <section className="workspace candidate-workspace">
+      <CandidateJobSearch
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        jobs={visibleJobs}
+      />
+      <WorkspaceHeader
+        title="Candidate Workspace"
+        eyebrow={candidateName || profile?.plane}
+        profile={profile}
+        error={error}
+        onLogout={onLogout}
+      />
+      <CandidateProfileForm profile={profile} />
+    </section>
+  );
+}
+
+function EmployerWorkspace({ profile, error, onLogout }) {
+  return (
+    <section className="workspace employer-workspace">
+      <WorkspaceHeader
+        title="Employer Workspace"
+        eyebrow={profile?.plane}
+        profile={profile}
+        error={error}
+        onLogout={onLogout}
+      />
+      <div className="workspace-grid">
+        <ActionPanel
+          title="Candidate Pipeline"
+          items={['Create vetting requests', 'Review candidate submissions', 'Move applicants through screening stages']}
+        />
+        <ActionPanel
+          title="Company Controls"
+          items={['Manage corporate access', 'Keep compliance details current', 'Use only verified work contact points']}
+        />
+        <ActionPanel
+          title="Screening Queue"
+          items={['Check pending verifications', 'Resolve flagged records', 'Export hiring-ready summaries']}
+        />
+      </div>
+    </section>
+  );
+}
+
+function CandidateJobSearch({ searchTerm, onSearchChange, jobs }) {
+  return (
+    <div className="candidate-search">
+      <label className="job-search-label" htmlFor="candidate-job-search">
+        <span>Search jobs</span>
+        <input
+          id="candidate-job-search"
+          type="search"
+          value={searchTerm}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Search by role, company, location, or work type"
+          autoComplete="off"
+        />
+      </label>
+
+      <div className="job-results" aria-live="polite">
+        {jobs.length > 0 ? jobs.map((job) => (
+          <article className="job-result" key={job.id}>
+            <div>
+              <h3>{job.title}</h3>
+              <p>{job.company}</p>
+              <span>{job.location}</span>
+            </div>
+            <div className="job-meta">
+              <span>{job.type}</span>
+              <span>{job.posted}</span>
+            </div>
+          </article>
+        )) : (
+          <p className="empty-results">No jobs match that search.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CandidateProfileForm({ profile }) {
+  const [formData, setFormData] = useState(() => buildCandidateProfile(profile));
+  const [documents, setDocuments] = useState([]);
+  const [savedMessage, setSavedMessage] = useState('');
+
+  useEffect(() => {
+    setFormData(buildCandidateProfile(profile));
+    setDocuments([]);
+    setSavedMessage('');
+  }, [profile]);
+
+  const sections = [
+    {
+      legend: 'Personal Information',
+      fields: [
+        { name: 'name', label: 'First Name', type: 'text' },
+        { name: 'surname', label: 'Surname', type: 'text' },
+        { name: 'idNumber', label: 'ID Number', type: 'text', inputMode: 'numeric' },
+        { name: 'dateOfBirth', label: 'Date of Birth', type: 'date' }
+      ]
+    },
+    {
+      legend: 'Contact Details',
+      fields: [
+        { name: 'emailAddress', label: 'Email Address', type: 'email' },
+        { name: 'phoneNumber', label: 'Phone Number', type: 'tel' },
+        { name: 'city', label: 'City', type: 'text' },
+        { name: 'province', label: 'Province', type: 'select', options: provinceOptions, placeholder: 'Select province' }
+      ]
+    },
+    {
+      legend: 'Application Details',
+      fields: [
+        { name: 'desiredRole', label: 'Desired Role', type: 'text' },
+        { name: 'highestQualification', label: 'Highest Qualification', type: 'select', options: qualificationOptions },
+        { name: 'yearsExperience', label: 'Years of Experience', type: 'number', min: '0' },
+        { name: 'availability', label: 'Availability', type: 'text' }
+      ]
+    }
+  ];
+
+  return (
+    <form
+      className="application-form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        setSavedMessage('Profile details saved for this session.');
+      }}
+    >
+      <div className="application-form-header">
+        <div>
+          <p className="eyebrow">Profile</p>
+          <h3>Candidate Application Form</h3>
+        </div>
+        <button type="submit">Save profile</button>
+      </div>
+
+      {sections.map((section) => (
+        <fieldset key={section.legend}>
+          <legend>{section.legend}</legend>
+          <div className="application-fields">
+            {section.fields.map((field) => (
+              <label key={field.name}>
+                <span>{field.label}</span>
+                {field.type === 'select' ? (
+                  <select
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={(event) => setFormData((current) => ({
+                      ...current,
+                      [field.name]: event.target.value
+                    }))}
+                  >
+                    <option value="">{field.placeholder || 'Select option'}</option>
+                    {field.options.map((option) => (
+                      <option value={option} key={option}>{option}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={formData[field.name]}
+                    onChange={(event) => setFormData((current) => ({
+                      ...current,
+                      [field.name]: event.target.value
+                    }))}
+                    inputMode={field.inputMode}
+                    min={field.min}
+                    autoComplete="off"
+                  />
+                )}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+
+      <label className="full-span">
+        <span>Professional Summary</span>
+        <textarea
+          name="summary"
+          value={formData.summary}
+          onChange={(event) => setFormData((current) => ({
+            ...current,
+            summary: event.target.value
+          }))}
+          rows="4"
+        />
+      </label>
+
+      <fieldset>
+        <legend>Supporting Documents</legend>
+        <div className="document-upload-grid">
+          {[
+            { name: 'cv', label: 'CV or Resume' },
+            { name: 'identityDocument', label: 'Identity Document' },
+            { name: 'qualification', label: 'Qualification Certificate' },
+            { name: 'consentForm', label: 'Consent Form' }
+          ].map((documentType) => (
+            <label className="document-upload" key={documentType.name}>
+              <span>{documentType.label}</span>
+              <input
+                type="file"
+                name={documentType.name}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                onChange={(event) => {
+                  const [file] = event.target.files;
+
+                  if (!file) {
+                    return;
+                  }
+
+                  setDocuments((current) => [
+                    ...current.filter((document) => document.type !== documentType.name),
+                    {
+                      type: documentType.name,
+                      label: documentType.label,
+                      name: file.name,
+                      size: file.size
+                    }
+                  ]);
+                }}
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="submitted-documents">
+          <h4>Submitted Documents</h4>
+          {documents.length > 0 ? (
+            <ul>
+              {documents.map((document) => (
+                <li key={document.type}>
+                  <span>{document.label}</span>
+                  <strong>{document.name}</strong>
+                  <small>{formatFileSize(document.size)}</small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No documents submitted yet.</p>
+          )}
+        </div>
+      </fieldset>
+
+      {savedMessage && <p className="save-message">{savedMessage}</p>}
+    </form>
+  );
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function buildCandidateProfile(profile) {
+  return {
+    name: profile?.name || '',
+    surname: profile?.surname || '',
+    idNumber: '',
+    dateOfBirth: '',
+    emailAddress: profile?.emailAddress || profile?.subject || '',
+    phoneNumber: profile?.phoneNumber || '',
+    city: '',
+    province: '',
+    desiredRole: '',
+    highestQualification: '',
+    yearsExperience: '',
+    availability: '',
+    summary: ''
+  };
+}
+
+function WorkspaceHeader({ title, eyebrow, profile, error, onLogout }) {
+  return (
+    <div className="workspace-header">
+      <div>
+        <p className="eyebrow">{eyebrow || 'Loading secure plane'}</p>
+        <h2>{title}</h2>
+        <p>{error || profile?.message || 'Checking your protected access...'}</p>
+        {profile?.subject && <p className="subject-line">{profile.subject}</p>}
+      </div>
+      <button type="button" onClick={onLogout}>Log out</button>
+    </div>
+  );
+}
+
+function ActionPanel({ title, items }) {
+  return (
+    <article className="action-panel">
+      <h3>{title}</h3>
+      <ul>
+        {items.map((item) => <li key={item}>{item}</li>)}
+      </ul>
+    </article>
   );
 }
 

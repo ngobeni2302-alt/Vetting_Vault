@@ -21,7 +21,7 @@ public class CandidateAuthService {
         this.jwtService = jwtService;
     }
 
-    public Map<String, Object> register(CandidateRegistrationRequest request) {
+    public AuthResponse register(CandidateRegistrationRequest request) {
         String normalizedEmail = normalize(request.emailAddress());
 
         if (candidatesByEmail.containsKey(normalizedEmail)) {
@@ -36,10 +36,7 @@ public class CandidateAuthService {
                 request.phoneNumber().trim()
         ));
 
-        return Map.of(
-                "message", "Candidate registered successfully",
-                "role", Role.CANDIDATE.name()
-        );
+        return issueSession(normalizedEmail, Role.CANDIDATE, "Candidate registered successfully");
     }
 
     public AuthResponse login(CandidateLoginRequest request) {
@@ -50,13 +47,21 @@ public class CandidateAuthService {
             throw new IllegalArgumentException("Invalid candidate credentials");
         }
 
-        OffsetDateTime expiresAt = OffsetDateTime.ofInstant(jwtService.calculateExpiryFromNow(), OffsetDateTime.now().getOffset());
-        String token = jwtService.issueToken(normalizedEmail, Role.CANDIDATE);
+        return issueSession(normalizedEmail, Role.CANDIDATE, "Candidate login successful");
+    }
 
-        return new AuthResponse(token, Role.CANDIDATE.name(), expiresAt, "Candidate login successful");
+    public CandidateAccount findByEmail(String emailAddress) {
+        return candidatesByEmail.get(normalize(emailAddress));
     }
 
     private String normalize(String email) {
         return email.trim().toLowerCase();
+    }
+
+    private AuthResponse issueSession(String subject, Role role, String message) {
+        OffsetDateTime expiresAt = OffsetDateTime.ofInstant(jwtService.calculateExpiryFromNow(), OffsetDateTime.now().getOffset());
+        String token = jwtService.issueToken(subject, role);
+
+        return new AuthResponse(token, role.name(), expiresAt, message);
     }
 }

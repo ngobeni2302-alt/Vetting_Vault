@@ -1,12 +1,13 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
-async function request(path, payload) {
+async function request(path, { method = 'POST', payload, token } = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
+    method,
     headers: {
-      'Content-Type': 'application/json'
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
-    body: JSON.stringify(payload)
+    ...(payload ? { body: JSON.stringify(payload) } : {})
   });
 
   const data = await response.json().catch(() => ({}));
@@ -19,8 +20,10 @@ async function request(path, payload) {
 }
 
 export const api = {
-  registerCandidate: (payload) => request('/candidate/register', payload),
-  loginCandidate: (payload) => request('/candidate/login', payload),
-  registerEmployer: (payload) => request('/employer/register', payload),
-  loginEmployer: (payload) => request('/employer/login', payload)
+  registerCandidate: (payload) => request('/candidate/register', { payload }),
+  loginCandidate: (payload) => request('/candidate/login', { payload }),
+  getCandidateProfile: (token) => request('/candidate/me', { method: 'GET', token }),
+  registerEmployer: (payload) => request('/employer/register', { payload }),
+  loginEmployer: (payload) => request('/employer/login', { payload }),
+  getEmployerProfile: (token) => request('/employer/me', { method: 'GET', token })
 };

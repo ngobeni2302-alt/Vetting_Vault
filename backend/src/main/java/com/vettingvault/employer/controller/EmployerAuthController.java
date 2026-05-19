@@ -5,7 +5,6 @@ import com.vettingvault.employer.dto.EmployerLoginRequest;
 import com.vettingvault.employer.dto.EmployerRegistrationRequest;
 import com.vettingvault.employer.service.EmployerAuthService;
 import jakarta.validation.Valid;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +24,7 @@ public class EmployerAuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Object> register(@Valid @RequestBody EmployerRegistrationRequest request) {
+    public AuthResponse register(@Valid @RequestBody EmployerRegistrationRequest request) {
         return employerAuthService.register(request);
     }
 

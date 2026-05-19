@@ -5,7 +5,6 @@ import com.vettingvault.candidate.dto.CandidateLoginRequest;
 import com.vettingvault.candidate.dto.CandidateRegistrationRequest;
 import com.vettingvault.candidate.service.CandidateAuthService;
 import jakarta.validation.Valid;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +24,7 @@ public class CandidateAuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, Object> register(@Valid @RequestBody CandidateRegistrationRequest request) {
+    public AuthResponse register(@Valid @RequestBody CandidateRegistrationRequest request) {
         return candidateAuthService.register(request);
     }
 

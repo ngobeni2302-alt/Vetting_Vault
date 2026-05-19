@@ -21,7 +21,13 @@ stop_pid() {
 
   if kill -0 "$pid" >/dev/null 2>&1; then
     echo "Stopping $name (PID $pid)..."
-    kill "$pid"
+    if ps -o sid= -p "$pid" >/dev/null 2>&1; then
+      local sid
+      sid="$(ps -o sid= -p "$pid" | tr -d ' ')"
+      kill "-$sid" >/dev/null 2>&1 || kill "$pid"
+    else
+      kill "$pid"
+    fi
   else
     echo "$name is not running (PID $pid not active)."
   fi

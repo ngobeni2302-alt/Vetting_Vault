@@ -30,7 +30,7 @@ public class EmployerAuthService {
         this.disposableEmailDomainValidator = disposableEmailDomainValidator;
     }
 
-    public Map<String, Object> register(EmployerRegistrationRequest request) {
+    public AuthResponse register(EmployerRegistrationRequest request) {
         String normalizedEmail = normalize(request.corporateEmail());
 
         disposableEmailDomainValidator.validateCorporateEmail(normalizedEmail);
@@ -46,10 +46,7 @@ public class EmployerAuthService {
                 passwordEncoder.encode(request.password())
         ));
 
-        return Map.of(
-                "message", "Employer registered successfully",
-                "role", Role.EMPLOYER.name()
-        );
+        return issueSession(normalizedEmail, Role.EMPLOYER, "Employer registered successfully");
     }
 
     public AuthResponse login(EmployerLoginRequest request) {
@@ -60,13 +57,17 @@ public class EmployerAuthService {
             throw new IllegalArgumentException("Invalid employer credentials");
         }
 
-        OffsetDateTime expiresAt = OffsetDateTime.ofInstant(jwtService.calculateExpiryFromNow(), OffsetDateTime.now().getOffset());
-        String token = jwtService.issueToken(normalizedEmail, Role.EMPLOYER);
-
-        return new AuthResponse(token, Role.EMPLOYER.name(), expiresAt, "Employer login successful");
+        return issueSession(normalizedEmail, Role.EMPLOYER, "Employer login successful");
     }
 
     private String normalize(String email) {
         return email.trim().toLowerCase();
+    }
+
+    private AuthResponse issueSession(String subject, Role role, String message) {
+        OffsetDateTime expiresAt = OffsetDateTime.ofInstant(jwtService.calculateExpiryFromNow(), OffsetDateTime.now().getOffset());
+        String token = jwtService.issueToken(subject, role);
+
+        return new AuthResponse(token, role.name(), expiresAt, message);
     }
 }

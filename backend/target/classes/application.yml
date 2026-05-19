@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+vettingvault:
+  security:
+    jwt-secret: "change-this-demo-secret-key-to-a-32-byte-minimum-value"
+    jwt-expiration-minutes: 30
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
