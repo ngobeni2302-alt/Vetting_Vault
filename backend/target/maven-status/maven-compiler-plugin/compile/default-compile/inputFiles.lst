@@ -13,6 +13,10 @@
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/employer/model/EmployerAccount.java
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/employer/service/DisposableEmailDomainValidator.java
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/employer/service/EmployerAuthService.java
+/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/jobs/JobController.java
+/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/jobs/JobStore.java
+/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/jobs/model/Job.java
+/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/jobs/model/JobApplication.java
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/security/JwtAuthenticationFilter.java
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/security/JwtService.java
 /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/main/java/com/vettingvault/security/RawSecurityTelemetryLogger.java

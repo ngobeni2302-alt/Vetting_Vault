@@ -26,41 +26,6 @@ const initialEmployerLogin = {
   password: ''
 };
 
-const candidateJobs = [
-  {
-    id: 'fraud-analyst',
-    title: 'Junior Fraud Analyst',
-    company: 'Nedbank Group',
-    location: 'Johannesburg, Gauteng',
-    type: 'Full-time',
-    posted: '2 days ago'
-  },
-  {
-    id: 'compliance-associate',
-    title: 'Compliance Screening Associate',
-    company: 'Discovery Limited',
-    location: 'Sandton, Gauteng',
-    type: 'Hybrid',
-    posted: '1 week ago'
-  },
-  {
-    id: 'hr-coordinator',
-    title: 'HR Vetting Coordinator',
-    company: 'Shoprite Group',
-    location: 'Cape Town, Western Cape',
-    type: 'Full-time',
-    posted: '3 days ago'
-  },
-  {
-    id: 'background-check-specialist',
-    title: 'Background Check Specialist',
-    company: 'Standard Bank',
-    location: 'Remote, South Africa',
-    type: 'Remote',
-    posted: 'Today'
-  }
-];
-
 const qualificationOptions = [
   'High School / Matric / Grade 12',
   'Certificate',
@@ -75,6 +40,44 @@ const qualificationOptions = [
   'Doctorate / PhD'
 ];
 
+const cityOptions = [
+  'Johannesburg',
+  'Pretoria',
+  'Benoni',
+  'Springs',
+  'Soweto',
+  'Centurion',
+  'Midrand',
+  'Cape Town',
+  'Stellenbosch',
+  'George',
+  'Paarl',
+  'Worcester',
+  'Durban',
+  'Pietermaritzburg',
+  'Richards Bay',
+  'Newcastle',
+  'Gqeberha',
+  'East London',
+  'Mthatha',
+  'Makhanda',
+  'Bloemfontein',
+  'Welkom',
+  'Bethlehem',
+  'Polokwane',
+  'Thohoyandou',
+  'Tzaneen',
+  'Mbombela',
+  'eMalahleni',
+  'Secunda',
+  'Mahikeng',
+  'Rustenburg',
+  'Klerksdorp',
+  'Kimberley',
+  'Upington',
+  'Kuruman'
+];
+
 const provinceOptions = [
   'Eastern Cape',
   'Free State',
@@ -85,6 +88,12 @@ const provinceOptions = [
   'Northern Cape',
   'North West',
   'Western Cape'
+];
+
+const availabilityOptions = [
+  'Immediate availability',
+  'Available after notice period(e.g. 2 weeks or 1 month)',
+  'Available on a specific date'
 ];
 
 function App() {
@@ -186,6 +195,7 @@ function App() {
         <CandidateWorkspace
           profile={planeProfile}
           error={planeError}
+          token={session.token}
           onLogout={() => {
             setSession(null);
             setMessage('Candidate session ended.');
@@ -197,6 +207,7 @@ function App() {
         <EmployerWorkspace
           profile={planeProfile}
           error={planeError}
+          token={session.token}
           onLogout={() => {
             setSession(null);
             setMessage('Employer session ended.');
@@ -304,12 +315,26 @@ function EmployerPlane({ onAuthenticated }) {
   );
 }
 
-function CandidateWorkspace({ profile, error, onLogout }) {
+function CandidateWorkspace({ profile, error, token, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
+  
+  useEffect(() => {
+    let isCurrent = true;
+    api.getJobs(token)
+      .then((data) => {
+        if (isCurrent) setJobs(data);
+      })
+      .catch((err) => console.error('Failed to load jobs:', err));
+      
+    return () => { isCurrent = false; };
+  }, [token]);
+
   const candidateName = [profile?.name, profile?.surname].filter(Boolean).join(' ');
   const normalizedSearch = searchTerm.trim().toLowerCase();
-  const visibleJobs = candidateJobs.filter((job) => {
-    const searchable = `${job.title} ${job.company} ${job.location} ${job.type}`.toLowerCase();
+  
+  const visibleJobs = jobs.filter((job) => {
+    const searchable = `${job.positionAdvertised} ${job.employerEmail} ${job.jobCity} ${job.yearsExperienceRequired} years`.toLowerCase();
     return searchable.includes(normalizedSearch);
   });
 
@@ -319,10 +344,11 @@ function CandidateWorkspace({ profile, error, onLogout }) {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         jobs={visibleJobs}
+        token={token}
       />
       <WorkspaceHeader
         title="Candidate Workspace"
-        eyebrow={candidateName || profile?.plane}
+        eyebrow={candidateName}
         profile={profile}
         error={error}
         onLogout={onLogout}
@@ -332,12 +358,14 @@ function CandidateWorkspace({ profile, error, onLogout }) {
   );
 }
 
-function EmployerWorkspace({ profile, error, onLogout }) {
+function EmployerWorkspace({ profile, error, token, onLogout }) {
+  const companyName = profile?.companyName || profile?.subject || '';
+
   return (
     <section className="workspace employer-workspace">
       <WorkspaceHeader
         title="Employer Workspace"
-        eyebrow={profile?.plane}
+        eyebrow={companyName}
         profile={profile}
         error={error}
         onLogout={onLogout}
@@ -356,11 +384,25 @@ function EmployerWorkspace({ profile, error, onLogout }) {
           items={['Check pending verifications', 'Resolve flagged records', 'Export hiring-ready summaries']}
         />
       </div>
+      <EmployerProfileForm token={token} />
     </section>
   );
 }
 
-function CandidateJobSearch({ searchTerm, onSearchChange, jobs }) {
+function CandidateJobSearch({ searchTerm, onSearchChange, jobs, token }) {
+  const [appliedJobs, setAppliedJobs] = useState(new Set());
+  const [error, setError] = useState('');
+
+  const handleApply = async (jobId) => {
+    setError('');
+    try {
+      await api.applyForJob(token, jobId);
+      setAppliedJobs(current => new Set(current).add(jobId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="candidate-search">
       <label className="job-search-label" htmlFor="candidate-job-search">
@@ -375,20 +417,32 @@ function CandidateJobSearch({ searchTerm, onSearchChange, jobs }) {
         />
       </label>
 
+      {error && <p className="error-banner">{error}</p>}
+
       <div className="job-results" aria-live="polite">
-        {jobs.length > 0 ? jobs.map((job) => (
-          <article className="job-result" key={job.id}>
-            <div>
-              <h3>{job.title}</h3>
-              <p>{job.company}</p>
-              <span>{job.location}</span>
-            </div>
-            <div className="job-meta">
-              <span>{job.type}</span>
-              <span>{job.posted}</span>
-            </div>
-          </article>
-        )) : (
+        {jobs.length > 0 ? jobs.map((job) => {
+          const hasApplied = appliedJobs.has(job.id);
+          return (
+            <article className="job-result" key={job.id}>
+              <div>
+                <h3>{job.positionAdvertised}</h3>
+                <p>{job.employerEmail}</p>
+                <span>{job.jobCity}</span>
+              </div>
+              <div className="job-meta">
+                <span>{job.yearsExperienceRequired} years exp</span>
+                <button 
+                  type="button" 
+                  onClick={() => handleApply(job.id)}
+                  disabled={hasApplied}
+                  className={hasApplied ? 'applied-btn' : ''}
+                >
+                  {hasApplied ? 'Applied ✓' : 'Apply'}
+                </button>
+              </div>
+            </article>
+          );
+        }) : (
           <p className="empty-results">No jobs match that search.</p>
         )}
       </div>
@@ -422,7 +476,7 @@ function CandidateProfileForm({ profile }) {
       fields: [
         { name: 'emailAddress', label: 'Email Address', type: 'email' },
         { name: 'phoneNumber', label: 'Phone Number', type: 'tel' },
-        { name: 'city', label: 'City', type: 'text' },
+        { name: 'city', label: 'City', type: 'select', options: cityOptions, placeholder: 'Select city' },
         { name: 'province', label: 'Province', type: 'select', options: provinceOptions, placeholder: 'Select province' }
       ]
     },
@@ -432,7 +486,7 @@ function CandidateProfileForm({ profile }) {
         { name: 'desiredRole', label: 'Desired Role', type: 'text' },
         { name: 'highestQualification', label: 'Highest Qualification', type: 'select', options: qualificationOptions },
         { name: 'yearsExperience', label: 'Years of Experience', type: 'number', min: '0' },
-        { name: 'availability', label: 'Availability', type: 'text' }
+        { name: 'availability', label: 'Availability', type: 'select', options: availabilityOptions, placeholder: 'Select availability' }
       ]
     }
   ];
@@ -562,6 +616,100 @@ function CandidateProfileForm({ profile }) {
         </div>
       </fieldset>
 
+      {savedMessage && <p className="save-message">{savedMessage}</p>}
+    </form>
+  );
+}
+
+function EmployerProfileForm({ token }) {
+  const [formData, setFormData] = useState({
+    positionAdvertised: '',
+    yearsExperienceRequired: '',
+    jobCity: ''
+  });
+  const [savedMessage, setSavedMessage] = useState('');
+  const [error, setError] = useState('');
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((current) => ({ ...current, [name]: value }));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError('');
+    setSavedMessage('');
+
+    try {
+      await api.postJob(token, formData);
+      setSavedMessage('Job posting saved successfully.');
+      setFormData({
+        positionAdvertised: '',
+        yearsExperienceRequired: '',
+        jobCity: ''
+      });
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  return (
+    <form
+      className="application-form"
+      onSubmit={handleSubmit}
+    >
+      <div className="application-form-header">
+        <div>
+          <p className="eyebrow">Job Posting</p>
+          <h3>Position Details</h3>
+        </div>
+        <button type="submit">Save posting</button>
+      </div>
+
+      <fieldset>
+        <legend>Job Information</legend>
+        <div className="application-fields">
+          <label>
+            <span>Position Advertised</span>
+            <input
+              type="text"
+              name="positionAdvertised"
+              value={formData.positionAdvertised}
+              onChange={handleChange}
+              placeholder="e.g. Senior Software Engineer"
+              autoComplete="off"
+            />
+          </label>
+
+          <label>
+            <span>Years of Experience Required</span>
+            <input
+              type="number"
+              name="yearsExperienceRequired"
+              value={formData.yearsExperienceRequired}
+              onChange={handleChange}
+              min="0"
+              placeholder="e.g. 3"
+            />
+          </label>
+
+          <label>
+            <span>Job Location</span>
+            <select
+              name="jobCity"
+              value={formData.jobCity}
+              onChange={handleChange}
+            >
+              <option value="">Select city</option>
+              {cityOptions.map((city) => (
+                <option value={city} key={city}>{city}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      {error && <p className="error-banner">{error}</p>}
       {savedMessage && <p className="save-message">{savedMessage}</p>}
     </form>
   );

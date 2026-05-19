@@ -11,13 +11,15 @@
 [[1;34mINFO[m] Copying 0 resource from src/main/resources to target/classes
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:compile[m [1m(default-compile)[m @ [36mvettingvault-backend[0;1m ---[m
-[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] Recompiling the module because of [1madded or removed source files[m.
+[[1;34mINFO[m] Compiling 29 source files with javac [debug parameters release 17] to target/classes
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mvettingvault-backend[0;1m ---[m
 [[1;34mINFO[m] skip non existing resourceDirectory /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/src/test/resources
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.13.0:testCompile[m [1m(default-testCompile)[m @ [36mvettingvault-backend[0;1m ---[m
-[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;34mINFO[m] Recompiling the module because of [1mchanged dependency[m.
+[[1;34mINFO[m] Compiling 2 source files with javac [debug parameters release 17] to target/test-classes
 [[1;34mINFO[m] 
 [[1;34mINFO[m] [1m<<< [0;32mspring-boot-maven-plugin:3.3.5:run[m [1m(default-cli)[0;1m < [0;1mtest-compile[m @ [36mvettingvault-backend[0;1m <<<[m
 [[1;34mINFO[m] 
@@ -34,22 +36,22 @@
 
  :: Spring Boot ::                (v3.3.5)
 
-2026-05-19T11:11:02.639+02:00  INFO 6214 --- [           main] c.vettingvault.VettingVaultApplication   : Starting VettingVaultApplication using Java 21.0.10 with PID 6214 (/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/target/classes started by wethinkcode in /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend)
-2026-05-19T11:11:02.640+02:00  INFO 6214 --- [           main] c.vettingvault.VettingVaultApplication   : No active profile set, falling back to 1 default profile: "default"
-2026-05-19T11:11:03.095+02:00  INFO 6214 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-05-19T11:11:03.102+02:00  INFO 6214 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-05-19T11:11:03.102+02:00  INFO 6214 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
-2026-05-19T11:11:03.124+02:00  INFO 6214 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-05-19T11:11:03.124+02:00  INFO 6214 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 466 ms
-2026-05-19T11:11:03.205+02:00  WARN 6214 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+2026-05-19T15:22:20.404+02:00  INFO 71728 --- [           main] c.vettingvault.VettingVaultApplication   : Starting VettingVaultApplication using Java 21.0.10 with PID 71728 (/home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend/target/classes started by wethinkcode in /home/wethinkcode/Desktop/Private_Work/Vetting_Vault/backend)
+2026-05-19T15:22:20.405+02:00  INFO 71728 --- [           main] c.vettingvault.VettingVaultApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-19T15:22:20.953+02:00  INFO 71728 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-19T15:22:20.962+02:00  INFO 71728 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-19T15:22:20.962+02:00  INFO 71728 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-05-19T15:22:20.988+02:00  INFO 71728 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-19T15:22:20.989+02:00  INFO 71728 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 562 ms
+2026-05-19T15:22:21.089+02:00  WARN 71728 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
 
-Using generated security password: f5bc0e7b-8428-460e-bda3-030344cc31aa
+Using generated security password: aee96504-1362-4c66-90a5-8418d82a5bd9
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
-2026-05-19T11:11:03.209+02:00  INFO 6214 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-05-19T11:11:03.436+02:00  INFO 6214 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2026-05-19T11:11:03.439+02:00  INFO 6214 --- [           main] c.vettingvault.VettingVaultApplication   : Started VettingVaultApplication in 0.981 seconds (process running for 1.12)
-2026-05-19T11:11:24.709+02:00  INFO 6214 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-05-19T11:11:24.709+02:00  INFO 6214 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-05-19T11:11:24.710+02:00  INFO 6214 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-05-19T15:22:21.094+02:00  INFO 71728 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-19T15:22:21.356+02:00  INFO 71728 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-19T15:22:21.361+02:00  INFO 71728 --- [           main] c.vettingvault.VettingVaultApplication   : Started VettingVaultApplication in 1.159 seconds (process running for 1.324)
+2026-05-19T15:23:26.579+02:00  INFO 71728 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-19T15:23:26.579+02:00  INFO 71728 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-19T15:23:26.580+02:00  INFO 71728 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

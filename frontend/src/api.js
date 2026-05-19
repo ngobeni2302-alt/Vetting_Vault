@@ -25,5 +25,9 @@ export const api = {
   getCandidateProfile: (token) => request('/candidate/me', { method: 'GET', token }),
   registerEmployer: (payload) => request('/employer/register', { payload }),
   loginEmployer: (payload) => request('/employer/login', { payload }),
-  getEmployerProfile: (token) => request('/employer/me', { method: 'GET', token })
+  getEmployerProfile: (token) => request('/employer/me', { method: 'GET', token }),
+  postJob: (token, payload) => request('/employer/jobs', { payload, token }),
+  getEmployerJobs: (token) => request('/employer/jobs', { method: 'GET', token }),
+  getJobs: (token) => request('/jobs', { method: 'GET', token }),
+  applyForJob: (token, jobId) => request(`/jobs/${jobId}/apply`, { token })
 };
